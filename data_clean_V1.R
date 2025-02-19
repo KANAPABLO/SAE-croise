@@ -67,6 +67,8 @@ location_grouped$Dew.point.temperature <- temperature$Dew.point.temperature
 # Afficher le DataFrame modifié
 print(location_grouped)
 
+donnees_6_à_23h<- location_grouped %>%
+  filter(!(Heure %in% c("00", "01", "02", "03", "04", "05")))
 
 # Afficher les premières lignes du dataframe
 head(location_grouped)

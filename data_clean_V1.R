@@ -7,6 +7,8 @@ temperature <- read.csv("~/SAE-ProjetIntensif/temperature.csv")
 
 library(dplyr)
 library(lubridate)
+library(corrplot)
+library(ggplot2)
 
 # Convertir la colonne Date_Hour en objet date-heure
 location <- location %>%
@@ -49,14 +51,22 @@ if (nrow_temperature < nrow_location) {
     Heure = rep(NA, nrow_location - nrow_temperature),
     Temperature = rep(NA, nrow_location - nrow_temperature),
     Humidity = rep(NA, nrow_location - nrow_temperature),
-    Wind_speed = rep(NA, nrow_location - nrow_temperature)
+    Wind_speed = rep(NA, nrow_location - nrow_temperature),
+    Visibility = rep(NA, nrow_location - nrow_temperature),
+    Dew.point.temperature = rep(NA, nrow_location - nrow_temperature)
+    
   ))
 }
 
 location_grouped$Temperature <- temperature$Temperature
 location_grouped$Humidity <- temperature$Humidity
 location_grouped$Wind_speed <- temperature$Wind_speed
+location_grouped$Visibility <- temperature$Visibility
+location_grouped$Dew.point.temperature <- temperature$Dew.point.temperature
 
 # Afficher le DataFrame modifié
 print(location_grouped)
 
+
+# Afficher les premières lignes du dataframe
+head(location_grouped)

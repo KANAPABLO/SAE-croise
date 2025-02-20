@@ -9,6 +9,8 @@ library(dplyr)
 library(lubridate)
 library(corrplot)
 library(ggplot2)
+library(FactoMineR)  # Pour l'ACP
+library(factoextra)  # Pour visualiser l'ACP
 
 # Convertir la colonne Date_Hour en objet date-heure
 location <- location %>%
@@ -47,13 +49,17 @@ if (nrow_location < nrow_temperature) {
 if (nrow_temperature < nrow_location) {
   # Ajoutez des lignes avec des valeurs NA à temperature
   temperature <- rbind(temperature, data.frame(
+    ID = rep(NA, nrow_location - nrow_temperature),
     Date = rep(NA, nrow_location - nrow_temperature),
-    Heure = rep(NA, nrow_location - nrow_temperature),
+    Hour = rep(NA, nrow_location - nrow_temperature),
     Temperature = rep(NA, nrow_location - nrow_temperature),
     Humidity = rep(NA, nrow_location - nrow_temperature),
     Wind_speed = rep(NA, nrow_location - nrow_temperature),
     Visibility = rep(NA, nrow_location - nrow_temperature),
-    Dew.point.temperature = rep(NA, nrow_location - nrow_temperature)
+    Dew.point.temperature = rep(NA, nrow_location - nrow_temperature),
+    Solar_Radiation = rep(NA, nrow_location - nrow_temperature),
+    Rainfall = rep(NA, nrow_location - nrow_temperature),
+    Snowfall = rep(NA, nrow_location - nrow_temperature)
     
   ))
 }
@@ -63,12 +69,9 @@ location_grouped$Humidity <- temperature$Humidity
 location_grouped$Wind_speed <- temperature$Wind_speed
 location_grouped$Visibility <- temperature$Visibility
 location_grouped$Dew.point.temperature <- temperature$Dew.point.temperature
+location_grouped$Solar_Radiation <- temperature$Solar_Radiation
+location_grouped$Rainfall <- temperature$Rainfall
+location_grouped$Snowfall <- temperature$Snowfall
 
 # Afficher le DataFrame modifié
 print(location_grouped)
-
-donnees_6_à_23h<- location_grouped %>%
-  filter(!(Heure %in% c("00", "01", "02", "03", "04", "05")))
-
-# Afficher les premières lignes du dataframe
-head(location_grouped)

@@ -8,7 +8,7 @@ token = "A_bf072e91"
 base_url = "http://172.22.215.130"
 ports = {
     "8100": {"filename": "info.csv", "headers": ["ID", "date", "saison", "vacance", "jour_ferie"]},
-    "8090": {"filename": "temperature.csv", "headers": ["ID", "Date", "Temperature", "Humidity", "Wind_speed", "Visibility", "Dew.point.temperature"]},
+    "8090": {"filename": "temperature.csv", "headers": ["ID", "Date", "Hour", "Temperature", "Humidity", "Wind_speed", "Visibility", "Dew.point.temperature","Solar_Radiation" ,"Rainfall" ,"Snowfall"]},
     "8080": {"filename": "location.csv", "headers": ["ID", "Date_Hour"]}
 }
 # Fonction pour récupérer les données
@@ -19,6 +19,9 @@ def fetch_data(port, id, token):
         print(f"[INFO] Port {port} - ID {id} - Status {response.status_code}")
         if response.status_code == 425:
             print(f"[STOP] Arrêt des requêtes pour le port {port} (code 425).")
+            return "STOP"
+        if response.status_code != 200:
+            print(f"[STOP] Arrêt des requêtes pour le port {port} (code {response.status_code}).")
             return "STOP"
         return response.text.strip()
     except requests.RequestException as e:
@@ -61,7 +64,7 @@ def process_port(port, config):
     existing_data = read_existing_data(filename)
     while True:
         if id in existing_data:
-            print(f"[INFO] Port {port} - ID {id} déjà écrit, passage à l'ID suivant.")
+            # print(f"[INFO] Port {port} - ID {id} déjà écrit, passage à l'ID suivant.")
             id += 1
             continue
         result = fetch_data(port, id, token)
@@ -77,15 +80,21 @@ def process_port(port, config):
                 data = [[id, line] for line in lines if line.strip()]
             elif port == "8090":
                 if len(lines) > 1:  # Vérification pour éviter l'erreur d'index
+                    #print(lines[0].split())
+                    #print(lines[1].split())
                     parts = lines[1].split()
                     # Remplacer les valeurs manquantes par une chaîne vide
-                    date = parts[0] if len(parts) > 0 else ""
-                    temperature = parts[1] if len(parts) > 1 else ""
-                    humidity = parts[2] if len(parts) > 2 else ""
-                    wind_speed = parts[3] if len(parts) > 3 else ""
-                    visibility = parts[4] if len(parts) > 4 else ""
-                    dew_point_temperature = parts[5] if len(parts) > 5 else ""
-                    data = [[id, date, temperature, humidity, wind_speed, visibility, dew_point_temperature]]
+                    date = parts[1] if len(parts) > 0 else ""
+                    hour = parts[2] if len(parts) > 1 else ""
+                    temperature = parts[3] if len(parts) > 2 else ""
+                    humidity = parts[4] if len(parts) > 3 else ""
+                    wind_speed = parts[5] if len(parts) > 4 else ""
+                    visibility = parts[6] if len(parts) > 5 else ""
+                    dew_point_temperature = parts[7] if len(parts) > 6 else ""
+                    Solar_Radiation  = parts[8] if len(parts) > 7 else ""
+                    Rainfall  = parts[9] if len(parts) > 8 else ""
+                    Snowfall  = parts[10] if len(parts) > 9 else ""
+                    data = [[id, date, hour, temperature, humidity, wind_speed, visibility, dew_point_temperature ,Solar_Radiation ,Rainfall ,Snowfall]]
                 else:
                     print(f"[ERREUR] Réponse inattendue pour le port {port}, ID {id}: {result}")
                     data = []
@@ -105,7 +114,7 @@ def process_port(port, config):
                     data = []
             save_data(filename, headers, data, existing_data)
             print(f"[INFO] Port {port} - ID {id} enregistré avec succès.")
-        time.sleep(0.6)  # Pause pour éviter la surcharge du serveur
+        time.sleep(0.2)  # Pause pour éviter la surcharge du serveur
         id += 1
 # Fonction principale
 def main():

@@ -75,3 +75,16 @@ location_grouped$Snowfall <- temperature$Snowfall
 
 # Afficher le DataFrame modifié
 print(location_grouped)
+#Graphique évolution de la température en fonction du temps
+# Moyenne des températures par jour pour lisser les variations horaires
+temperature_daily <- location_clean %>%
+  group_by(Date) %>%
+  summarise(Temperature = mean(Temperature, na.rm = TRUE))
+# Graphique avec légende
+ggplot(temperature_daily, aes(x = as.Date(Date))) +
+  geom_line(aes(y = Temperature, color = "Température réelle"), size = 1) +  # Rouge
+  geom_smooth(aes(y = Temperature, color = "Tendance lissée"), method = "loess", se = FALSE, span = 0.2, size = 1) +  # Bleu
+  scale_color_manual(values = c("Température réelle" = "red", "Tendance lissée" = "blue")) +  # Définir les couleurs
+  labs(title = "Évolution de la Température au Fil du Temps",
+       x = "Date", y = "Température ", color = "Légende") +  # Ajout d'un titre de légende
+  theme_minimal()

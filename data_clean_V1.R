@@ -80,15 +80,17 @@ print(location_grouped)
 temperature_daily <- location_clean %>%
   group_by(Date) %>%
   summarise(Temperature = mean(Temperature, na.rm = TRUE))
-#changement de la colonne date 
-info <- info %>%
-  mutate(Date = ymd_hms(date))
-#ajout des colonnes de la table info
-location_grouped <- merge(location_grouped, info[, c('Date', 'saison','vacance','jour_ferie')], by = 'Date', all.x = TRUE)
 
+# Conversion en date
+info$Date <- as.Date(substr(info$date, 1, 10))
+# Ajout des colonnes de la table info
+location_grouped <- merge(location_grouped, info[, c('Date', 'saison', 'vacance', 'jour_ferie')], by = 'Date', all.x = TRUE)
 location_grouped <- location_grouped %>% 
-  rename("Saison" = "saison","Vacances" = "vacance","Jour_ferie" = "jour_ferie")
-
+  rename(
+    "Saison" = "saison",
+    "Vacances" = "vacance",
+    "Jour_ferie" = "jour_ferie"
+  )
 print(location_grouped)
 
 # Graphique avec légende
